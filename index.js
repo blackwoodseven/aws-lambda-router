@@ -2,7 +2,7 @@
 
 function handler(routeConfig) {
     const eventProcessorMapping = extractEventProcessorMapping(routeConfig);
-    return (event, context, callback) => {
+    return (request, callback) => {
         for (const eventProcessorName of eventProcessorMapping.keys()) {
 
             try {
@@ -13,7 +13,7 @@ function handler(routeConfig) {
                 //   - throws Error: the 'error.toString()' is taken as the error message of processing the event
                 //   - returns object: this is taken as the result of processing the event
                 //   - returns promise: when the promise is resolved, this is taken as the result of processing the event
-                const result = eventProcessorMapping.get(eventProcessorName)(routeConfig[eventProcessorName], event);
+                const result = eventProcessorMapping.get(eventProcessorName)(routeConfig[eventProcessorName], request);
                 if (result) {
                     // be resilient against a processor returning a value instead of a promise:
                     return Promise.resolve(result)
