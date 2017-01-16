@@ -3,25 +3,24 @@
 function handler(routeConfig) {
     const eventProcessorMapping = extractEventProcessorMapping(routeConfig);
     return (request, callback) => {
+        if (routeConfig.debug) {
+            console.log("Lambda invoked with request:", request)
+        }
         for (const eventProcessorName of eventProcessorMapping.keys()) {
 
             try {
-                // the contract of 'processors' is as follows:
-                // - their method 'process' is called with (config, event)
-                // - the method...
-                //   - returns null: the processor does not feel responsible for the event
-                //   - throws Error: the 'error.toString()' is taken as the error message of processing the event
-                //   - returns object: this is taken as the result of processing the event
-                //   - returns promise: when the promise is resolved, this is taken as the result of processing the event
                 const result = eventProcessorMapping.get(eventProcessorName)(routeConfig[eventProcessorName], request);
                 if (result) {
-                    // be resilient against a processor returning a value instead of a promise:
                     return Promise.resolve(result)
                         .then(result => callback(null, result))
                         .catch(error => {
                             console.log(error.stack);
                             callback(error.toString());
                         });
+                } else {
+                    if (routeConfig.debug) {
+                        console.log("Event processor couldn't handle request.")
+                    }
                 }
             } catch (error) {
                 if (error.stack) {
