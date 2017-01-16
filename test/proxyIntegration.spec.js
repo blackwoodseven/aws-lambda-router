@@ -29,9 +29,9 @@ describe('proxyIntegration.routeHandler.selection', () => {
                 {path: '/123', method: 'POST', action: () => '123'},
                 {path: '/123', method: 'GET', action: actionSpy}
             ]
-        }, {httpMethod: 'GET', path: '/123'}, () => {
+        }, {proxyRequest: {httpMethod: 'GET', path: '/123'}, lambdaContext: {}}, () => {
         });
-        expect(actionSpy).toHaveBeenCalledWith({httpMethod: 'GET', path: '/123', paths: {}});
+        expect(actionSpy).toHaveBeenCalledWith({httpMethod: 'GET', path: '/123', paths: {}}, {});
     });
     it('should select parameter match', () => {
         const actionSpy = jasmine.createSpy('action');
